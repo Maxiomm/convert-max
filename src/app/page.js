@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Navbar from "./components/Navbar";
 import ImageConverter from "./components/ImageConverter";
 import VideoConverter from "./components/VideoConverter";
+import AudioConverter from "./components/AudioConverter";
 
 const Page = () => {
   /* -----------HOOKS----------- */
@@ -14,7 +15,7 @@ const Page = () => {
   // State to trigger animation
   const [animate, setAnimate] = useState(false);
 
-  /* ------------- METHODS ------------- */
+  /* -------------METHODS------------- */
 
   const handleConverterChange = (type) => {
     setAnimate(true);
@@ -40,6 +41,7 @@ const Page = () => {
         >
           {converterType === "image" && <ImageConverter />}
           {converterType === "video" && <VideoConverter />}
+          {converterType === "audio" && <AudioConverter />}
         </div>
       </div>
     </div>

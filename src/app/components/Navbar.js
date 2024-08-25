@@ -34,6 +34,12 @@ const Navbar = ({ setConverterType }) => {
         >
           VIDEOS
         </button>
+        <button
+          className="mx-2 btn btn-outline text-white border-white hover:bg-white hover:text-gray-900"
+          onClick={() => setConverterType("audio")}
+        >
+          AUDIOS
+        </button>
       </div>
     </nav>
   );

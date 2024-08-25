@@ -124,7 +124,7 @@ const VideoConverter = () => {
 
       <br />
 
-      {/* Button to trigger the image conversion */}
+      {/* Button to trigger the video conversion */}
       <div className="flex space-x-4">
         <button
           onClick={handleCancel}

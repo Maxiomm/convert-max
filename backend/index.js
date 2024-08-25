@@ -15,7 +15,7 @@ app.use(cors());
 // Configure Multer to handle file uploads, storing them in the 'uploads' directory
 const upload = multer({ dest: "uploads/" });
 
-// Route to handle video conversion requests
+// Video conversion route
 app.post("/api/convert-video", upload.single("video"), (req, res) => {
   const format = req.body.format; // Get the desired output format from the request
   const outputPath = `uploads/converted-video.${format}`; // Define the output path for the converted video
@@ -32,8 +32,6 @@ app.post("/api/convert-video", upload.single("video"), (req, res) => {
       return res.status(500).send("Error converting video"); // Send a 500 response to the client
     }
 
-    console.log("stdout:", stdout); // Log FFmpeg's standard output
-
     // Send the converted video file as a download to the client
     res.download(outputPath, (err) => {
       if (err) {
@@ -43,6 +41,31 @@ app.post("/api/convert-video", upload.single("video"), (req, res) => {
       // Clean up by deleting the original uploaded file and the converted file
       fs.unlink(req.file.path, () => {}); // Delete the uploaded file
       fs.unlink(outputPath, () => {}); // Delete the converted file after sending
+    });
+  });
+});
+
+// Audio conversion route
+app.post("/api/convert-audio", upload.single("audio"), (req, res) => {
+  const format = req.body.format;
+  const outputPath = `uploads/converted-audio.${format}`;
+
+  const command = `ffmpeg -i ${req.file.path} ${outputPath}`;
+
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error("Error converting audio:", error.message);
+      console.error("stderr:", stderr);
+      return res.status(500).send("Error converting audio");
+    }
+
+    res.download(outputPath, (err) => {
+      if (err) {
+        console.error("Error sending audio:", err);
+      }
+
+      fs.unlink(req.file.path, () => {});
+      fs.unlink(outputPath, () => {});
     });
   });
 });
