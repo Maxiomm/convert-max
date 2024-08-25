@@ -91,7 +91,7 @@ const VideoConverter = () => {
 
   return (
     <div className="flex flex-col items-center p-4 space-y-4 bg-gray-800 text-white rounded-lg">
-      <h1 className="font-bold text-2xl">VIDEOS</h1>
+      <h1 className="font-bold text-2xl">VIDEOS CONVERTER</h1>
 
       <br />
 
