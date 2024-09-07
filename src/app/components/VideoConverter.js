@@ -20,7 +20,7 @@ const VideoConverter = () => {
   // useRef hook to directly manipulate the file input element
   const fileInputRef = useRef(null);
 
-  /* ------------- METHODS ------------- */
+  /* -------------METHODS------------- */
 
   // Method to handle when a video file is uploaded by the user
   const handleVideoUpload = (e) => {

@@ -9,11 +9,12 @@ const Navbar = ({ setConverterType }) => {
       {/* Logo Section */}
       <div className="flex items-center">
         <Image
-          src="/images/Logo-ConvertMax.png" // Path to your image file
+          src="/images/Logo-ConvertMax.png" // Path to the image file
           alt="App Logo"
           width={200} // Specify the width of the image
           height={200} // Specify the height of the image
           priority={true} // Ensure the logo is loaded immediately for better performance
+          draggable="false" // Prevent image from being dragged
         />
       </div>
 
@@ -39,6 +40,12 @@ const Navbar = ({ setConverterType }) => {
           onClick={() => setConverterType("audio")}
         >
           AUDIOS
+        </button>
+        <button
+          className="mx-2 btn btn-outline text-white border-white hover:bg-white hover:text-gray-900"
+          onClick={() => setConverterType("document")}
+        >
+          DOCUMENTS
         </button>
       </div>
     </nav>

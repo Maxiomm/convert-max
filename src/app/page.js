@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import ImageConverter from "./components/ImageConverter";
 import VideoConverter from "./components/VideoConverter";
 import AudioConverter from "./components/AudioConverter";
+import DocumentConverter from "./components/DocumentsConverter";
 
 const Page = () => {
   /* -----------HOOKS----------- */
@@ -42,6 +43,7 @@ const Page = () => {
           {converterType === "image" && <ImageConverter />}
           {converterType === "video" && <VideoConverter />}
           {converterType === "audio" && <AudioConverter />}
+          {converterType === "document" && <DocumentConverter />}
         </div>
       </div>
     </div>

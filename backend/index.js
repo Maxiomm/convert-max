@@ -70,6 +70,31 @@ app.post("/api/convert-audio", upload.single("audio"), (req, res) => {
   });
 });
 
+// Document conversion route
+/*app.post("/api/convert-document", upload.single("document"), (req, res) => {
+  const inputFile = req.file.path; // Path to the uploaded file
+  const outputFormat = req.body.format; // Desired output format (e.g., docx, html, etc.)
+  const outputFile = `uploads/${path.basename(inputFile)}.${outputFormat}`; // Output file path
+
+  // Execute Pandoc command for conversion
+  const command = `pandoc "${inputFile}" -o "${outputFile}"`;
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Conversion error: ${error.message}`);
+      return res.status(500).send("Conversion error");
+    }
+    // Send the converted file to the client
+    res.download(outputFile, (err) => {
+      if (err) {
+        console.error(`File sending error: ${err.message}`);
+      }
+      // Clean up temporary files after download
+      fs.unlinkSync(inputFile);
+      fs.unlinkSync(outputFile);
+    });
+  });
+});*/
+
 // Function to clean up old files in the uploads directory
 const cleanUploads = () => {
   const uploadsDir = path.join(__dirname, "uploads");
@@ -112,5 +137,5 @@ cron.schedule("0 * * * *", () => {
 
 // Start the Express server and listen on the specified port
 app.listen(port, () => {
-  console.log(`Video converter backend running at http://localhost:${port}`);
+  console.log(`Converter backend running at http://localhost:${port}`);
 });

@@ -89,7 +89,7 @@ const AudioConverter = () => {
 
   return (
     <div className="flex flex-col items-center p-4 space-y-4 bg-gray-800 text-white rounded-lg">
-      <h1 className="font-bold text-2xl">AUDIO CONVERTER</h1>
+      <h1 className="font-bold text-2xl">AUDIOS CONVERTER</h1>
       <br />
 
       {/* Input for uploading an audio file */}

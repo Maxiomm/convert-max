@@ -18,7 +18,7 @@ const ImageConverter = () => {
   // useRef hook to directly manipulate the file input element
   const fileInputRef = useRef(null);
 
-  /* ------------- METHODS ------------- */
+  /* -------------METHODS------------- */
 
   // Function to handle image file upload
   const handleImageUpload = (e) => {
