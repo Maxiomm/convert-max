@@ -12,6 +12,9 @@ const port = 3001;
 // Enable CORS for all origins to allow cross-origin requests from the frontend
 app.use(cors());
 
+// Middleware to parse JSON bodies
+app.use(express.json());
+
 // Configure Multer to handle file uploads, storing them in the 'uploads' directory
 const upload = multer({ dest: "uploads/" });
 
@@ -41,6 +44,42 @@ app.post("/api/convert-video", upload.single("video"), (req, res) => {
       // Clean up by deleting the original uploaded file and the converted file
       fs.unlink(req.file.path, () => {}); // Delete the uploaded file
       fs.unlink(outputPath, () => {}); // Delete the converted file after sending
+    });
+  });
+});
+
+// Video downloader route
+app.post("/api/download-video", (req, res) => {
+  const youtubeUrl = req.body.url; // Get the YouTube URL from the request body
+  const format = req.body.format || "mp4"; // Get the format or default to mp4
+  const quality = req.body.quality || "best"; // Default to best quality
+
+  const outputFile = `uploads/${Date.now()}.${format}`; // Use the selected format
+
+  // Command to download the YouTube video using yt-dlp, specifying the quality and format
+  const command = `yt-dlp -f "bestvideo[height<=${quality}]+bestaudio/best" -o "${outputFile.replace(
+    `.${format}`,
+    ""
+  )}.%(ext)s" ${youtubeUrl}`;
+
+  // Execute the download command
+  exec(command, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Download error: ${error.message}`);
+      return res.status(500).send("Download error");
+    }
+
+    console.log(`Download successful: ${stdout}`);
+
+    // Detect if the final output is .mp4 or .webm
+    const finalOutputFile = outputFile.replace(`.${format}`, ".webm"); // Forcing to WebM
+
+    // Send the downloaded file to the client
+    res.download(finalOutputFile, (err) => {
+      if (err) {
+        console.error(`Error sending file: ${err.message}`);
+      }
+      fs.unlinkSync(finalOutputFile); // Clean up the file after sending
     });
   });
 });

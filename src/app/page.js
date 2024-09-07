@@ -2,10 +2,11 @@
 
 import React, { useState } from "react";
 import Navbar from "./components/Navbar";
-import ImageConverter from "./components/ImageConverter";
-import VideoConverter from "./components/VideoConverter";
-import AudioConverter from "./components/AudioConverter";
-import DocumentConverter from "./components/DocumentsConverter";
+import ImagesConverter from "./components/ImagesConverter";
+import VideosConverter from "./components/VideosConverter";
+import VideosDownloader from "./components/VideosDownloader";
+import AudiosConverter from "./components/AudiosConverter";
+import DocumentsConverter from "./components/DocumentsConverter";
 
 const Page = () => {
   /* -----------HOOKS----------- */
@@ -35,16 +36,40 @@ const Page = () => {
 
       {/* Container to centralize the converter and give it a "bubble" effect */}
       <div className="flex justify-center items-center mt-8">
-        <div
-          className={`bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full ${
-            animate ? "animate-scale-down-up" : ""
-          }`}
-        >
-          {converterType === "image" && <ImageConverter />}
-          {converterType === "video" && <VideoConverter />}
-          {converterType === "audio" && <AudioConverter />}
-          {converterType === "document" && <DocumentConverter />}
-        </div>
+        {/* Only show this div if converterType is NOT "video" */}
+        {converterType !== "video" && (
+          <div
+            className={`bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full ${
+              animate ? "animate-scale-down-up" : ""
+            }`}
+          >
+            {converterType === "image" && <ImagesConverter />}
+            {converterType === "audio" && <AudiosConverter />}
+            {converterType === "document" && <DocumentsConverter />}
+          </div>
+        )}
+
+        {converterType === "video" && (
+          <div className="flex space-x-8">
+            {/* Separate container for VideosConverter */}
+            <div
+              className={`bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full ${
+                animate ? "animate-scale-down-up" : ""
+              }`}
+            >
+              <VideosConverter />
+            </div>
+
+            {/* Separate container for VideosDownloader */}
+            <div
+              className={`bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full ${
+                animate ? "animate-scale-down-up" : ""
+              }`}
+            >
+              <VideosDownloader />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

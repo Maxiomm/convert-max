@@ -18,9 +18,6 @@ const Navbar = ({ setConverterType }) => {
         />
       </div>
 
-      {/* Empty div to push the buttons to the center */}
-      <div className="flex-grow"></div>
-
       {/* Navigation Buttons */}
       <div className="absolute left-1/2 transform -translate-x-1/2">
         <button
