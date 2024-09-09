@@ -88,7 +88,6 @@ const VideosDownloader = () => {
       <br />
 
       {/* Input for writing a video url */}
-
       <input
         type="text"
         value={url}
@@ -98,7 +97,6 @@ const VideosDownloader = () => {
       />
 
       {/* Dropdown to select the video format and quality */}
-
       <div className="flex space-x-2 w-full">
         <select
           value={format}
@@ -107,6 +105,7 @@ const VideosDownloader = () => {
         >
           <option value="mp4">MP4</option>
           <option value="webm">WEBM</option>
+          <option value="mkv">MKV</option>
         </select>
 
         <select

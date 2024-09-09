@@ -5,6 +5,7 @@ const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
 const cron = require("node-cron");
+const { spawn } = require("child_process");
 
 const app = express();
 const port = 3001;
@@ -51,16 +52,12 @@ app.post("/api/convert-video", upload.single("video"), (req, res) => {
 // Video downloader route
 app.post("/api/download-video", (req, res) => {
   const youtubeUrl = req.body.url; // Get the YouTube URL from the request body
-  const format = req.body.format || "mp4"; // Get the format or default to mp4
-  const quality = req.body.quality || "best"; // Default to best quality
+  const quality = req.body.quality || "best"; // Default to the best quality
 
-  const outputFile = `uploads/${Date.now()}.${format}`; // Use the selected format
+  const outputFile = `uploads/${Date.now()}`; // Use a filename without an extension
 
-  // Command to download the YouTube video using yt-dlp, specifying the quality and format
-  const command = `yt-dlp -f "bestvideo[height<=${quality}]+bestaudio/best" -o "${outputFile.replace(
-    `.${format}`,
-    ""
-  )}.%(ext)s" ${youtubeUrl}`;
+  // Command to download the video using yt-dlp, specifying the quality and format
+  const command = `yt-dlp -f "bestvideo[height<=${quality}]+bestaudio/best" -o "${outputFile}.%(ext)s" ${youtubeUrl}`;
 
   // Execute the download command
   exec(command, (error, stdout, stderr) => {
@@ -71,15 +68,30 @@ app.post("/api/download-video", (req, res) => {
 
     console.log(`Download successful: ${stdout}`);
 
-    // Detect if the final output is .mp4 or .webm
-    const finalOutputFile = outputFile.replace(`.${format}`, ".webm"); // Forcing to WebM
+    // Possible extensions after merging
+    const possibleExtensions = [".mp4", ".webm", ".mkv"];
+
+    // Check for the existence of files with the possible extensions
+    let finalOutputFile;
+    for (let ext of possibleExtensions) {
+      if (fs.existsSync(`${outputFile}${ext}`)) {
+        finalOutputFile = `${outputFile}${ext}`;
+        break;
+      }
+    }
+
+    if (!finalOutputFile) {
+      return res.status(500).send("Error: Final file not found.");
+    }
 
     // Send the downloaded file to the client
     res.download(finalOutputFile, (err) => {
       if (err) {
         console.error(`Error sending file: ${err.message}`);
+      } else {
+        // Delete the file after successfully sending it
+        fs.unlinkSync(finalOutputFile);
       }
-      fs.unlinkSync(finalOutputFile); // Clean up the file after sending
     });
   });
 });
