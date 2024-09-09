@@ -70,9 +70,22 @@ app.post("/api/download-video", (req, res) => {
     const progressMatch = data.match(/\[download\] +(\d+(\.\d+)?)%/);
     if (progressMatch) {
       progress = parseFloat(progressMatch[1]);
-      // Send progress via SSE
-      sseClients.forEach((client) => {
-        client.res.write(`data: ${progress}\n\n`);
+
+      // Send the progress to all SSE clients that are still connected
+      sseClients.forEach((client, index) => {
+        if (client.res && client.res.writableEnded === false) {
+          // Check if the response is still active
+          try {
+            client.res.write(`data: ${progress}\n\n`);
+          } catch (error) {
+            console.error(`Error writing to client ${index}:`, error);
+          }
+        } else {
+          console.log(
+            `Client ${index} connection closed. Removing from the list.`
+          );
+          sseClients.splice(index, 1); // Remove client if connection is closed
+        }
       });
     }
   });
@@ -108,7 +121,7 @@ app.post("/api/download-video", (req, res) => {
 // SSE (Server-Sent Events) to send progress updates continuously
 let sseClients = [];
 
-// Endpoint to open the SSE connection
+// Endpoint to open the SSE connection for progress updates
 app.get("/api/download-progress", (req, res) => {
   res.setHeader("Content-Type", "text/event-stream");
   res.setHeader("Cache-Control", "no-cache");
@@ -145,6 +158,75 @@ app.post("/api/convert-audio", upload.single("audio"), (req, res) => {
       fs.unlink(req.file.path, () => {});
       fs.unlink(outputPath, () => {});
     });
+  });
+});
+
+// Audio downloader route
+app.post("/api/download-audio", (req, res) => {
+  const youtubeUrl = req.body.url;
+  const format = req.body.format || "mp3";
+  const outputFile = `uploads/${Date.now()}.${format}`;
+
+  // Command to extract audio
+  const command = `yt-dlp -x --audio-format ${format} -o "${outputFile}" ${youtubeUrl}`;
+
+  const downloadProcess = exec(command);
+
+  downloadProcess.stdout.on("data", (data) => {
+    console.log(`Download Progress: ${data}`);
+
+    // Extract progress percentage from yt-dlp output
+    const progressMatch = data.match(/\[download\] +(\d+(\.\d+)?)%/);
+    if (progressMatch) {
+      const progress = parseFloat(progressMatch[1]);
+
+      // Send the progress to all SSE clients that are still connected
+      sseClients.forEach((client, index) => {
+        if (client && !client.writableEnded) {
+          // Correct check for client
+          try {
+            client.write(`data: ${progress}\n\n`);
+          } catch (error) {
+            console.error(`Error writing to client ${index}:`, error);
+          }
+        } else {
+          console.log(
+            `Client ${index} connection closed. Removing from the list.`
+          );
+          sseClients.splice(index, 1); // Remove client if connection is closed
+        }
+      });
+    }
+  });
+
+  downloadProcess.on("close", (code) => {
+    console.log(`Download process exited with code ${code}`);
+
+    res.download(outputFile, (err) => {
+      if (err) {
+        console.error(`Error sending file: ${err.message}`);
+      } else {
+        fs.unlinkSync(outputFile); // Delete the file after sending it
+      }
+    });
+  });
+});
+
+// Endpoint to open SSE connection for progress updates
+app.get("/api/audio-progress", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  // Add the client to the list
+  sseClients.push(res);
+
+  req.on("close", () => {
+    // Remove client when the connection is closed
+    const index = sseClients.indexOf(res);
+    if (index !== -1) {
+      sseClients.splice(index, 1);
+    }
   });
 });
 

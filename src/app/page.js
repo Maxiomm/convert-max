@@ -6,6 +6,7 @@ import ImagesConverter from "./components/ImagesConverter";
 import VideosConverter from "./components/VideosConverter";
 import VideosDownloader from "./components/VideosDownloader";
 import AudiosConverter from "./components/AudiosConverter";
+import AudiosDownloader from "./components/AudiosDownloader";
 import DocumentsConverter from "./components/DocumentsConverter";
 
 const Page = () => {
@@ -36,15 +37,14 @@ const Page = () => {
 
       {/* Container to centralize the converter and give it a "bubble" effect */}
       <div className="flex justify-center items-center mt-8">
-        {/* Only show this div if converterType is NOT "video" */}
-        {converterType !== "video" && (
+        {/* Only show this div if converterType is NOT "video" or "audio" */}
+        {converterType !== "video" && converterType !== "audio" && (
           <div
             className={`bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full ${
               animate ? "animate-scale-down-up" : ""
             }`}
           >
             {converterType === "image" && <ImagesConverter />}
-            {converterType === "audio" && <AudiosConverter />}
             {converterType === "document" && <DocumentsConverter />}
           </div>
         )}
@@ -67,6 +67,28 @@ const Page = () => {
               }`}
             >
               <VideosDownloader />
+            </div>
+          </div>
+        )}
+
+        {converterType === "audio" && (
+          <div className="flex space-x-8">
+            {/* Separate container for AudiosConverter */}
+            <div
+              className={`bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full ${
+                animate ? "animate-scale-down-up" : ""
+              }`}
+            >
+              <AudiosConverter />
+            </div>
+
+            {/* Separate container for AudiosDownloader */}
+            <div
+              className={`bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full ${
+                animate ? "animate-scale-down-up" : ""
+              }`}
+            >
+              <AudiosDownloader />
             </div>
           </div>
         )}

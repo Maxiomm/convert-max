@@ -2,12 +2,10 @@
 
 import React, { useState } from "react";
 
-const VideosDownloader = () => {
+const AudiosDownloader = () => {
   /* -----------HOOKS----------- */
-
   const [url, setUrl] = useState("");
-  const [format, setFormat] = useState("mp4"); // Default format is mp4
-  const [quality, setQuality] = useState("1080"); // Default quality is 1080p
+  const [format, setFormat] = useState("mp3"); // Default format is mp3
   const [progress, setProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -22,18 +20,18 @@ const VideosDownloader = () => {
     setUrl(e.target.value);
   };
 
-  const downloadVideo = async () => {
+  const downloadAudio = async () => {
     // Check if URL is empty
     if (!url) {
       setModalMessage("No URL Provided! Please enter a YouTube URL.");
-      setIsModalVisible(true); // Show the modal if no URL is entered
+      setIsModalVisible(true);
       return;
     }
 
     // Check if the entered URL is a valid YouTube link
     if (!youtubeUrlRegex.test(url)) {
       setModalMessage("Invalid URL! Please enter a valid YouTube URL.");
-      setIsModalVisible(true); // Show the modal if the URL is invalid
+      setIsModalVisible(true);
       return;
     }
 
@@ -41,7 +39,7 @@ const VideosDownloader = () => {
 
     // Open SSE connection to receive real-time progress updates
     const eventSource = new EventSource(
-      "http://localhost:3001/api/download-progress"
+      "http://localhost:3001/api/audio-progress"
     );
 
     eventSource.onmessage = (event) => {
@@ -55,24 +53,25 @@ const VideosDownloader = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:3001/api/download-video", {
+      const response = await fetch("http://localhost:3001/api/download-audio", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url, format, quality }),
+        body: JSON.stringify({ url, format }),
       });
 
       if (!response.ok) {
-        throw new Error("Error downloading the video");
+        throw new Error("Error downloading the audio");
       }
 
       const blob = await response.blob();
       const downloadUrl = URL.createObjectURL(blob);
 
+      // Create an anchor element to trigger the download
       const a = document.createElement("a");
       a.href = downloadUrl;
-      a.download = `downloaded-video.${format}`;
+      a.download = `downloaded-audio.${format}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -89,8 +88,7 @@ const VideosDownloader = () => {
   // Function to handle the cancel action
   const handleCancel = () => {
     setUrl(""); // Clear the URL input
-    setFormat("mp4"); // Reset the format to default
-    setQuality("1080"); // Reset the quality to default
+    setFormat("mp3"); // Reset the format to default
   };
 
   /* -----------HTML----------- */
@@ -98,7 +96,7 @@ const VideosDownloader = () => {
   return (
     <div className="flex flex-col items-center p-4 space-y-4 bg-gray-800 text-white rounded-lg">
       <h2 className="font-bold text-2xl text-center w-full">
-        VIDEOS DOWNLOADER
+        AUDIOS DOWNLOADER
       </h2>
 
       <br />
@@ -112,32 +110,16 @@ const VideosDownloader = () => {
         className="input input-bordered w-full max-w-xs"
       />
 
-      {/* Dropdown to select the video format and quality */}
+      {/* Dropdown to select the audio format */}
       <div className="flex space-x-2 w-full">
         <select
           value={format}
           onChange={(e) => setFormat(e.target.value)}
           className="select select-bordered w-full max-w-xs"
         >
-          <option value="mp4">MP4</option>
-          <option value="webm">WEBM</option>
-          <option value="mkv">MKV</option>
-        </select>
-
-        <select
-          value={quality}
-          onChange={(e) => setQuality(e.target.value)}
-          className="select select-bordered w-full max-w-xs"
-        >
-          <option value="4320">4320p (8K)</option>
-          <option value="2160">2160p (4K)</option>
-          <option value="1440">1440p (2K)</option>
-          <option value="1080">1080p</option>
-          <option value="720">720p</option>
-          <option value="480">480p</option>
-          <option value="360">360p</option>
-          <option value="240">240p</option>
-          <option value="144">144p</option>
+          <option value="mp3">MP3</option>
+          <option value="m4a">M4A</option>
+          <option value="wav">WAV</option>
         </select>
       </div>
 
@@ -160,7 +142,7 @@ const VideosDownloader = () => {
         </div>
       )}
 
-      {/* Button to trigger the video download */}
+      {/* Button to trigger the audio download */}
       <div className="flex justify-center space-x-4">
         {/* Cancel Button */}
         <button
@@ -172,7 +154,7 @@ const VideosDownloader = () => {
 
         {/* Download Button */}
         <button
-          onClick={downloadVideo}
+          onClick={downloadAudio}
           className="btn bg-blue-600 hover:bg-blue-800 text-white"
           disabled={isDownloading}
         >
@@ -208,4 +190,4 @@ const VideosDownloader = () => {
   );
 };
 
-export default VideosDownloader;
+export default AudiosDownloader;
