@@ -51,28 +51,38 @@ app.post("/api/convert-video", upload.single("video"), (req, res) => {
 
 // Video downloader route
 app.post("/api/download-video", (req, res) => {
-  const youtubeUrl = req.body.url; // Get the YouTube URL from the request body
-  const quality = req.body.quality || "best"; // Default to the best quality
+  const youtubeUrl = req.body.url;
+  const quality = req.body.quality || "best";
 
-  const outputFile = `uploads/${Date.now()}`; // Use a filename without an extension
+  const outputFile = `uploads/${Date.now()}`;
 
-  // Command to download the video using yt-dlp, specifying the quality and format
   const command = `yt-dlp -f "bestvideo[height<=${quality}]+bestaudio/best" -o "${outputFile}.%(ext)s" ${youtubeUrl}`;
 
-  // Execute the download command
-  exec(command, (error, stdout, stderr) => {
-    if (error) {
-      console.error(`Download error: ${error.message}`);
-      return res.status(500).send("Download error");
+  const downloadProcess = exec(command);
+
+  // Track progress
+  let progress = 0;
+
+  downloadProcess.stdout.on("data", (data) => {
+    console.log(`Download Progress: ${data}`);
+
+    // Parse logs to extract progress percentage
+    const progressMatch = data.match(/\[download\] +(\d+(\.\d+)?)%/);
+    if (progressMatch) {
+      progress = parseFloat(progressMatch[1]);
+      // Send progress via SSE
+      sseClients.forEach((client) => {
+        client.res.write(`data: ${progress}\n\n`);
+      });
     }
+  });
 
-    console.log(`Download successful: ${stdout}`);
+  downloadProcess.on("close", (code) => {
+    console.log(`Download process exited with code ${code}`);
 
-    // Possible extensions after merging
     const possibleExtensions = [".mp4", ".webm", ".mkv"];
-
-    // Check for the existence of files with the possible extensions
     let finalOutputFile;
+
     for (let ext of possibleExtensions) {
       if (fs.existsSync(`${outputFile}${ext}`)) {
         finalOutputFile = `${outputFile}${ext}`;
@@ -84,15 +94,32 @@ app.post("/api/download-video", (req, res) => {
       return res.status(500).send("Error: Final file not found.");
     }
 
-    // Send the downloaded file to the client
+    // Send the final downloaded file as a response
     res.download(finalOutputFile, (err) => {
       if (err) {
         console.error(`Error sending file: ${err.message}`);
       } else {
-        // Delete the file after successfully sending it
-        fs.unlinkSync(finalOutputFile);
+        fs.unlinkSync(finalOutputFile); // Delete the file after sending
       }
     });
+  });
+});
+
+// SSE (Server-Sent Events) to send progress updates continuously
+let sseClients = [];
+
+// Endpoint to open the SSE connection
+app.get("/api/download-progress", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+
+  // Add the client to the list
+  sseClients.push({ id: Date.now(), res });
+
+  req.on("close", () => {
+    // Remove the client when the connection is closed
+    sseClients = sseClients.filter((client) => client.res !== res);
   });
 });
 

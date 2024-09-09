@@ -8,6 +8,7 @@ const VideosDownloader = () => {
   const [url, setUrl] = useState("");
   const [format, setFormat] = useState("mp4"); // Default format is mp4
   const [quality, setQuality] = useState("1080"); // Default quality is 1080p
+  const [progress, setProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
@@ -38,13 +39,22 @@ const VideosDownloader = () => {
 
     setIsDownloading(true);
 
+    // Open SSE connection to receive real-time progress updates
+    const eventSource = new EventSource(
+      "http://localhost:3001/api/download-progress"
+    );
+
+    eventSource.onmessage = (event) => {
+      const progress = parseFloat(event.data);
+      setProgress(progress); // Update the progress bar
+    };
+
     try {
       const response = await fetch("http://localhost:3001/api/download-video", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        // Send URL, selected format and quality to backend
         body: JSON.stringify({ url, format, quality }),
       });
 
@@ -55,7 +65,6 @@ const VideosDownloader = () => {
       const blob = await response.blob();
       const downloadUrl = URL.createObjectURL(blob);
 
-      // Create an anchor element to trigger the download
       const a = document.createElement("a");
       a.href = downloadUrl;
       a.download = `downloaded-video.${format}`;
@@ -67,6 +76,8 @@ const VideosDownloader = () => {
       alert("An error occurred during the download.");
     } finally {
       setIsDownloading(false);
+      setProgress(0);
+      eventSource.close(); // Close the SSE connection after download
     }
   };
 
@@ -126,6 +137,19 @@ const VideosDownloader = () => {
       </div>
 
       <br />
+
+      {/* Progress bar */}
+      {isDownloading && (
+        <div
+          className="w-full bg-gray-200 rounded-full h-1"
+          style={{ marginTop: "0" }}
+        >
+          <div
+            className="bg-blue-600 rounded-full h-1"
+            style={{ width: `${progress}%` }}
+          ></div>
+        </div>
+      )}
 
       {/* Button to trigger the video download */}
       <div className="flex justify-center space-x-4">
