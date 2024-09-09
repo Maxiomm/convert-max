@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 const VideosDownloader = () => {
   /* -----------HOOKS----------- */
@@ -10,11 +10,21 @@ const VideosDownloader = () => {
   const [quality, setQuality] = useState("1080"); // Default quality is 1080p
   const [progress, setProgress] = useState(0);
   const [isDownloading, setIsDownloading] = useState(false);
+  const [displayedProgress, setDisplayedProgress] = useState(0);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
 
   // Regex to check if the URL is a valid YouTube link
   const youtubeUrlRegex = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.?be)\/.+$/;
+
+  // Interpolation for smooth progress bar
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setDisplayedProgress((prev) => (prev < progress ? prev + 0.5 : progress));
+    }, 1); // Update every 1ms for a smooth effect
+
+    return () => clearInterval(interval);
+  }, [progress]);
 
   /* -------------METHODS------------- */
 
@@ -150,12 +160,12 @@ const VideosDownloader = () => {
           <div className="w-full bg-gray-200 rounded-full h-1">
             <div
               className="bg-blue-600 rounded-full h-1"
-              style={{ width: `${progress}%` }}
+              style={{ width: `${displayedProgress}%` }}
             ></div>
           </div>
           {/* Percentage text */}
           <span className="ml-2 text-white text-xs font-bold">
-            {Math.round(progress)}%
+            {Math.round(displayedProgress)}%
           </span>
         </div>
       )}
