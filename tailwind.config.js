@@ -23,6 +23,9 @@ module.exports = {
     animation: {
       "scale-down-up": "scaleDownUp 0.2s ease-in-out",
     },
+    cursor: {
+      custom: "url('/images/cursors/Cross-Cursor.png') 16 16, auto",
+    },
   },
   plugins: [require("daisyui")],
   daisyui: {

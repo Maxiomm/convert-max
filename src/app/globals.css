@@ -31,3 +31,7 @@ body {
     text-wrap: balance;
   }
 }
+
+.cursor-default {
+  cursor: default !important;
+}

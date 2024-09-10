@@ -179,8 +179,15 @@ const AudiosDownloader = () => {
       {/* Modal to warn about errors */}
       {isModalVisible && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
-          <div className="modal modal-open">
-            <div className="modal-box">
+          <div
+            className="modal modal-open cursor-custom"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) {
+                setIsModalVisible(false); // Close modal if clic is out of the modal box
+              }
+            }}
+          >
+            <div className="modal-box cursor-default">
               <h2 className="font-bold text-red-600 text-lg">Error !</h2>
               <br />
               <p>{modalMessage}</p>
