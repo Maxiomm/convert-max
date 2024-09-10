@@ -31,12 +31,15 @@ const Page = () => {
   /* -----------HTML----------- */
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white">
+    <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       {/* Navbar with buttons to switch between converters */}
-      <Navbar setConverterType={handleConverterChange} />
+      <Navbar
+        setConverterType={handleConverterChange}
+        converterType={converterType}
+      />
 
       {/* Container to centralize the converter and give it a "bubble" effect */}
-      <div className="flex justify-center items-center mt-8">
+      <div className="flex-grow flex justify-center items-center">
         {/* Only show this div if converterType is NOT "video" or "audio" */}
         {converterType !== "video" && converterType !== "audio" && (
           <div
@@ -44,6 +47,7 @@ const Page = () => {
               animate ? "animate-scale-down-up" : ""
             }`}
           >
+            {/* Render the appropriate converter */}
             {converterType === "image" && <ImagesConverter />}
             {converterType === "document" && <DocumentsConverter />}
           </div>
