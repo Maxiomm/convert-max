@@ -39,7 +39,7 @@ const Page = () => {
       />
 
       {/* Container to centralize the converter and give it a "bubble" effect */}
-      <div className="flex-grow flex justify-center items-center">
+      <div className="flex-grow flex justify-center items-center mt-8 mb-8 lg:mt-0 lg:mb-0">
         {/* Only show this div if converterType is NOT "video" or "audio" */}
         {converterType !== "video" && converterType !== "audio" && (
           <div
@@ -54,7 +54,7 @@ const Page = () => {
         )}
 
         {converterType === "video" && (
-          <div className="flex space-x-8">
+          <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-8 space-y-8 lg:space-y-0">
             {/* Separate container for VideosConverter */}
             <div
               className={`bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full ${
@@ -76,7 +76,7 @@ const Page = () => {
         )}
 
         {converterType === "audio" && (
-          <div className="flex space-x-8">
+          <div className="flex flex-col lg:flex-row space-x-0 lg:space-x-8 space-y-8 lg:space-y-0">
             {/* Separate container for AudiosConverter */}
             <div
               className={`bg-gray-800 p-8 rounded-lg shadow-lg max-w-lg w-full ${

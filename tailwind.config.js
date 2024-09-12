@@ -19,6 +19,10 @@ module.exports = {
           "100%": { transform: "scale(1)" },
         },
       },
+      screens: {
+        xs: "400px",
+        sm: "560px",
+      },
     },
     animation: {
       "scale-down-up": "scaleDownUp 0.2s ease-in-out",
