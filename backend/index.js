@@ -5,7 +5,6 @@ const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
 const cron = require("node-cron");
-const { spawn } = require("child_process");
 
 const app = express();
 const port = 3001;
