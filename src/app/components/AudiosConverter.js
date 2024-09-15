@@ -48,10 +48,13 @@ const AudioConverter = () => {
     formData.append("format", format);
 
     try {
-      const response = await fetch("http://localhost:3001/api/convert-audio", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://convert-max-production.up.railway.app/api/convert-audio",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Audio conversion failed");

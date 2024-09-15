@@ -49,10 +49,13 @@ const VideoConverter = () => {
 
     try {
       // Send the video to the backend for conversion
-      const response = await fetch("http://localhost:3001/api/convert-video", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://convert-max-production.up.railway.app/api/convert-video",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         // If the response is not OK, throw an error

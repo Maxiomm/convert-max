@@ -7,7 +7,7 @@ const cors = require("cors");
 const cron = require("node-cron");
 
 const app = express();
-const port = 3001;
+const port = process.env.PORT || 3001;
 
 // Enable CORS for all origins to allow cross-origin requests from the frontend
 app.use(cors());

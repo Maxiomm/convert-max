@@ -49,7 +49,7 @@ const AudiosDownloader = () => {
 
     // Open SSE connection to receive real-time progress updates
     const eventSource = new EventSource(
-      "http://localhost:3001/api/audio-progress"
+      "https://convert-max-production.up.railway.app/api/audio-progress"
     );
 
     eventSource.onmessage = (event) => {
@@ -63,13 +63,16 @@ const AudiosDownloader = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:3001/api/download-audio", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url, format }),
-      });
+      const response = await fetch(
+        "https://convert-max-production.up.railway.app/api/download-audio",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url, format }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Error downloading the audio");

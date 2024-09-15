@@ -12,7 +12,7 @@ Here's the source code for the ConvertMax site: [https:/convertmax.vercel.app](h
 - **Frontend :** HTML/CSS/JavaScript, Tailwind, Next.js
 - **Backend :** Node.js, Express
 - **Tools :** ffmpeg, yt-dlp
-- **Deployment :** Vercel
+- **Deployment :** Vercel (frontend), Railway (backend)
 
 ## Team
 

@@ -51,7 +51,7 @@ const VideosDownloader = () => {
 
     // Open SSE connection to receive real-time progress updates
     const eventSource = new EventSource(
-      "http://localhost:3001/api/download-progress"
+      "https://convert-max-production.up.railway.app/api/download-progress"
     );
 
     eventSource.onmessage = (event) => {
@@ -65,13 +65,16 @@ const VideosDownloader = () => {
     };
 
     try {
-      const response = await fetch("http://localhost:3001/api/download-video", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ url, format, quality }),
-      });
+      const response = await fetch(
+        "https://convert-max-production.up.railway.app/api/download-video",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ url, format, quality }),
+        }
+      );
 
       if (!response.ok) {
         throw new Error("Error downloading the video");
