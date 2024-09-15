@@ -26,6 +26,10 @@ app.use(express.json());
 // Configure Multer to handle file uploads, storing them in the 'uploads' directory
 const upload = multer({ dest: "uploads/" });
 
+app.get("/api/test", (req, res) => {
+  res.send("API is working!");
+});
+
 // Video conversion route
 app.post("/api/convert-video", upload.single("video"), (req, res) => {
   const format = req.body.format; // Get the desired output format from the request
