@@ -17,7 +17,7 @@ const corsOptions = {
 };
 
 // Enable CORS for all origins to allow cross-origin requests from the frontend
-app.use(cors({ origin: "*" }));
+app.use(cors(corsOptions));
 
 // Middleware to parse JSON bodies
 app.use(express.json());
