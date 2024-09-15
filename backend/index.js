@@ -64,9 +64,9 @@ app.post("/api/convert-video", upload.single("video"), (req, res) => {
 app.post("/api/download-video", (req, res) => {
   const youtubeUrl = req.body.url;
   const quality = req.body.quality || "best";
-
   const outputFile = `uploads/${Date.now()}`;
 
+  // yt-dlp command for downloading the video
   const command = `yt-dlp -f "bestvideo[height<=${quality}]+bestaudio/best" -o "${outputFile}.%(ext)s" ${youtubeUrl}`;
 
   const downloadProcess = exec(command);
@@ -84,8 +84,7 @@ app.post("/api/download-video", (req, res) => {
 
       // Send the progress to all SSE clients that are still connected
       sseClients.forEach((client, index) => {
-        if (client.res && client.res.writableEnded === false) {
-          // Check if the response is still active
+        if (client.res && !client.res.writableEnded) {
           try {
             client.res.write(`data: ${progress}\n\n`);
           } catch (error) {
@@ -101,12 +100,24 @@ app.post("/api/download-video", (req, res) => {
     }
   });
 
+  downloadProcess.on("error", (error) => {
+    // Handle download process errors (e.g., yt-dlp execution errors)
+    console.error("Error during download process:", error.message);
+    return res.status(500).send("Error during the video download process.");
+  });
+
   downloadProcess.on("close", (code) => {
     console.log(`Download process exited with code ${code}`);
+
+    if (code !== 0) {
+      // Handle non-zero exit code (yt-dlp failed)
+      return res.status(500).send("Error during the video download process.");
+    }
 
     const possibleExtensions = [".mp4", ".webm", ".mkv"];
     let finalOutputFile;
 
+    // Check for the correct file extension in the output directory
     for (let ext of possibleExtensions) {
       if (fs.existsSync(`${outputFile}${ext}`)) {
         finalOutputFile = `${outputFile}${ext}`;
@@ -115,6 +126,7 @@ app.post("/api/download-video", (req, res) => {
     }
 
     if (!finalOutputFile) {
+      console.error("Error: Final file not found.");
       return res.status(500).send("Error: Final file not found.");
     }
 
@@ -122,9 +134,11 @@ app.post("/api/download-video", (req, res) => {
     res.download(finalOutputFile, (err) => {
       if (err) {
         console.error(`Error sending file: ${err.message}`);
-      } else {
-        fs.unlinkSync(finalOutputFile); // Delete the file after sending
+        return res.status(500).send("Error sending the downloaded file.");
       }
+
+      // Clean up the file after sending
+      fs.unlinkSync(finalOutputFile);
     });
   });
 });
@@ -178,11 +192,12 @@ app.post("/api/download-audio", (req, res) => {
   const format = req.body.format || "mp3";
   const outputFile = `uploads/${Date.now()}.${format}`;
 
-  // Command to extract audio
+  // Command to extract audio using yt-dlp
   const command = `yt-dlp -x --audio-format ${format} -o "${outputFile}" ${youtubeUrl}`;
 
   const downloadProcess = exec(command);
 
+  // Track download progress
   downloadProcess.stdout.on("data", (data) => {
     console.log(`Download Progress: ${data}`);
 
@@ -194,7 +209,6 @@ app.post("/api/download-audio", (req, res) => {
       // Send the progress to all SSE clients that are still connected
       sseClients.forEach((client, index) => {
         if (client && !client.writableEnded) {
-          // Correct check for client
           try {
             client.write(`data: ${progress}\n\n`);
           } catch (error) {
@@ -210,15 +224,36 @@ app.post("/api/download-audio", (req, res) => {
     }
   });
 
+  // Handle download process errors
+  downloadProcess.on("error", (error) => {
+    console.error("Error during audio download process:", error.message);
+    return res.status(500).send("Error during the audio download process.");
+  });
+
+  // Handle download process completion
   downloadProcess.on("close", (code) => {
     console.log(`Download process exited with code ${code}`);
 
+    if (code !== 0) {
+      // Handle non-zero exit code (yt-dlp failed)
+      return res.status(500).send("Error during the audio download process.");
+    }
+
+    // Check if the file exists before trying to send it
+    if (!fs.existsSync(outputFile)) {
+      console.error("Error: Final audio file not found.");
+      return res.status(500).send("Error: Final audio file not found.");
+    }
+
+    // Send the downloaded audio file as a response
     res.download(outputFile, (err) => {
       if (err) {
         console.error(`Error sending file: ${err.message}`);
-      } else {
-        fs.unlinkSync(outputFile); // Delete the file after sending it
+        return res.status(500).send("Error sending the downloaded file.");
       }
+
+      // Clean up the file after sending
+      fs.unlinkSync(outputFile);
     });
   });
 });
