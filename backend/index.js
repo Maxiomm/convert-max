@@ -12,6 +12,7 @@ const port = process.env.PORT || 3001;
 const corsOptions = {
   origin: "https://convertmax.vercel.app", // Allow requests from this specific origin
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE", // Specify the allowed HTTP methods
+  allowedHeaders: ["Content-Type"],
   credentials: true, // If you want to handle authentication or cookies
   optionsSuccessStatus: 204, // Handle pre-flight requests for older browsers
 };
